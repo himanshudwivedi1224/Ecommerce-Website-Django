@@ -1,0 +1,147 @@
+{% extends 'shop/basic.html' %} {% block title%} Checkout - My Awesome Cart{% endblock %} {% block css %}
+<style>
+    .coupon {
+        border: 5px dotted #bbb;
+        /* Dotted border */
+        width: 80%;
+        border-radius: 15px;
+        /* Rounded border */
+        margin: 0 auto;
+        /* Center the coupon */
+        max-width: 600px;
+    }
+    
+    .container {
+        padding: 2px 16px;
+        background-color: #f1f1f1;
+    }
+    
+    .promo {
+        background: #ccc;
+        padding: 3px;
+    }
+    
+    .expire {
+        color: red;
+    }
+</style>
+{%endblock%} {% block body %}
+<div class="container">
+    <div class="col my-4 ">
+        <h2>Step 1 - My Awesome Cart Express Checkout - Review Your Cart Items</h2>
+        <div class="my-4 ">
+            <ul class="list-group" id="items">
+            </ul>
+
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mt-3">
+                    <li class="breadcrumb-item active" aria-current="page">Your Cart Total Is <b>Rs. <span id="totalPrice"></span></b>. Enter your details below & place your order. Thanks for using Hari Pujan!</li>
+                </ol>
+                <ol class="breadcrumb mt-3">
+                    <li class="breadcrumb-item active" aria-current="page">Promo Discount is <b>Rs.150 <span id="totalPrice"></span></b>. Enter your details below & place your order. Thanks for using Hari Pujan!</li>
+                </ol>
+            </nav>
+
+        </div>
+    </div>
+    <div class="col my-4">
+        <h2>Step 2 - Enter Address & Other Details:</h2>
+        <form method="post" action="/shop/checkout/">{% csrf_token %}
+            <input type="hidden" name="itemsJson" id="itemsJson">
+            <input type="hidden" name="amount" id="amount">
+            <input type="hidden" name="product_name" id="product_name">
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputname">Name</label>
+                    <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+                </div>
+                <div class="form-group col-md-6">
+                    <label for="inputEmail4">Email</label>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Email">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputAddress">Address</label>
+                <input type="text" class="form-control" id="address1" name="address1" placeholder="1234 Main St">
+            </div>
+            <div class="form-group">
+                <label for="inputAddress2">Address line 2</label>
+                <input type="text" class="form-control" id="address2" name="address2" placeholder="Apartment, studio, or floor">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label for="inputCity">City</label>
+                    <input type="text" class="form-control" id="city" name="city">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="inputState">State</label>
+                    <input type="text" class="form-control" id="state" name="state" placeholder="Enter State">
+                </div>
+                <div class="form-group col-md-2">
+                    <label for="inputZip">Zip</label>
+                    <input type="text" class="form-control" id="zip_code" name="zip_code">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="inputZip">Phone Number</label>
+                <input type="tel" class="form-control" id="phone" name="phone">
+            </div>
+            <button type="submit" class="btn btn-primary">Place Order</button>
+        </form>
+
+    </div>
+</div>
+
+<div class="coupon">
+    <div class="container">
+        <h3>Company Logo</h3>
+    </div>
+    <img src="hamburger.jpg" alt="Avatar" style="width:100%;">
+    <div class="container" style="background-color:white">
+        <h2><b>20% OFF YOUR PURCHASE</b></h2>
+        <p>Lorem ipsum..</p>
+    </div>
+    <div class="container">
+        <p>Use Promo Code: <span class="promo">BOH232</span></p>
+        <p class="expire">Expires: Jan 03, 2021</p>
+    </div>
+</div>
+{% endblock %} {% block js %}
+<script>
+    if (localStorage.getItem('cart') == null) {
+        var cart = {};
+    } else {
+        cart = JSON.parse(localStorage.getItem('cart'));
+
+    }
+    console.log(cart);
+    var sum = 0;
+    var promocode = 150
+    var totalPrice = 0;
+    if ($.isEmptyObject(cart)) {
+        //if object is empty
+        mystr = `<p>Your cart is empty, please add some items to your cart before checking out!</p>`
+        $('#items').append(mystr);
+    } else {
+        for (item in cart) {
+            let name = cart[item][1];
+            let qty = cart[item][0];
+            let itemPrice = cart[item][2];
+            sum = sum + qty;
+            totalPrice = totalPrice + (qty * itemPrice) - promocode;
+            mystr = `<li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${name}
+                    <span class="badge badge-primary badge-pill">${qty}</span>
+                </li>`
+            $('#items').append(mystr);
+        }
+
+    }
+
+    document.getElementById('cart').innerHTML = sum;
+    document.getElementById('totalPrice').innerHTML = totalPrice;
+    $('#itemsJson').val(JSON.stringify(cart));
+    $('#amount').val($('#totalPrice').html())
+    $('#product_name').val(JSON.stringify(name));
+</script>
+{% endblock %}
