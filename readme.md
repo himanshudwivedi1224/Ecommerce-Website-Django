@@ -1,0 +1,1 @@
+This is Django project for an ecommerce website which needs changes in inerface.
